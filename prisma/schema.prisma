@@ -1,0 +1,135 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         Role     @default(STUDENT)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  
+  student      Student?
+
+  @@map("users")
+}
+
+model Student {
+  id               String           @id @default(uuid())
+  userId           String           @unique @map("user_id")
+  firstName        String           @map("first_name")
+  lastName         String           @map("last_name")
+  middleName       String?          @map("middle_name")
+  dateOfBirth      DateTime         @map("date_of_birth")
+  gender           Gender
+  address          String
+  phone            String
+  gradeLevel       String           @map("grade_level")
+  academicYear     String           @map("academic_year")
+  enrollmentStatus EnrollmentStatus @default(PENDING) @map("enrollment_status")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+  
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  guardians        Guardian[]
+  documents        Document[]
+  payments         Payment[]
+
+  @@map("students")
+}
+
+model Guardian {
+  id           String   @id @default(uuid())
+  studentId    String   @map("student_id")
+  firstName    String   @map("first_name")
+  lastName     String   @map("last_name")
+  relationship String
+  phone        String
+  email        String
+  address      String
+  
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("guardians")
+}
+
+model Document {
+  id           String       @id @default(uuid())
+  studentId    String       @map("student_id")
+  documentType DocumentType @map("document_type")
+  fileUrl      String       @map("file_url")
+  fileName     String       @map("file_name")
+  fileSize     Int          @map("file_size")
+  uploadedAt   DateTime     @default(now()) @map("uploaded_at")
+  
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model Payment {
+  id                    String        @id @default(uuid())
+  studentId             String        @map("student_id")
+  amount                Decimal       @db.Decimal(10, 2)
+  paymentType           PaymentType   @map("payment_type")
+  paymentMethod         PaymentMethod @map("payment_method")
+  paymentStatus         PaymentStatus @default(PENDING) @map("payment_status")
+  stripePaymentIntentId String?       @map("stripe_payment_intent_id")
+  receiptUrl            String?       @map("receipt_url")
+  paidAt                DateTime?     @map("paid_at")
+  createdAt             DateTime      @default(now()) @map("created_at")
+  
+  student               Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EnrollmentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  ENROLLED
+}
+
+enum DocumentType {
+  BIRTH_CERTIFICATE
+  REPORT_CARD
+  ID_PHOTO
+}
+
+enum PaymentType {
+  REGISTRATION_FEE
+  TUITION_DOWN_PAYMENT
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  GCASH
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
