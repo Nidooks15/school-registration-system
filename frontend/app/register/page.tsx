@@ -60,6 +60,15 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       const { confirmPassword, ...submitData } = formData;
+      
+      // Ensure date is in ISO 8601 format (YYYY-MM-DD) for Safari/mobile compatibility
+      if (submitData.dateOfBirth) {
+        const date = new Date(submitData.dateOfBirth);
+        if (!isNaN(date.getTime())) {
+          submitData.dateOfBirth = date.toISOString().split('T')[0];
+        }
+      }
+      
       await register(submitData);
       router.push('/student/dashboard');
     } catch (error) {
