@@ -68,12 +68,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast.success('Registration successful!');
     } catch (error: any) {
-      const errorMessage = 
-        error.response?.data?.errors?.[0]?.msg || // Handle express-validator array
-        error.response?.data?.error ||            // Handle standard error message
-        'Registration failed';
-      
-      toast.error(errorMessage);
+      // Handle express-validator errors with field names
+      if (error.response?.data?.errors?.[0]) {
+        const validationError = error.response.data.errors[0];
+        const fieldName = validationError.param || 'Unknown field';
+        const message = validationError.msg || 'Invalid value';
+        toast.error(`${fieldName}: ${message}`);
+      } else {
+        const errorMessage = error.response?.data?.error || 'Registration failed';
+        toast.error(errorMessage);
+      }
       throw error;
     }
   };
