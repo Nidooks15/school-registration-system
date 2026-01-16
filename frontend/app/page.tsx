@@ -1,9 +1,33 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { GraduationCap, FileText, CreditCard, CheckCircle, BookOpen, Users, Award } from 'lucide-react';
 
 export default function HomePage() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      // Redirect to appropriate dashboard based on role
+      if (user.role === 'ADMIN') {
+        router.push('/admin/dashboard');
+      } else {
+        router.push('/student/dashboard');
+      }
+    }
+  }, [user, loading, router]);
+
+  // Show loading or nothing while checking auth
+  if (loading || user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
