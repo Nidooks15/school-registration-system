@@ -30,7 +30,7 @@ frontend/.next/
 frontend/out/
 
 # Prisma
-prisma/migrations/
+prisma/# migrations/
 
 # Uploads (if storing locally)
 uploads/
