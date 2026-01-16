@@ -23,7 +23,12 @@ router.post('/register', [
   body('phone').trim().notEmpty(),
   body('gradeLevel').trim().notEmpty(),
   body('academicYear').trim().notEmpty(),
-  body('guardian').isObject(),
+  body('guardian.firstName').trim().notEmpty(),
+  body('guardian.lastName').trim().notEmpty(),
+  body('guardian.relationship').trim().notEmpty(),
+  body('guardian.phone').trim().notEmpty(),
+  body('guardian.email').isEmail().normalizeEmail(),
+  body('guardian.address').trim().notEmpty(),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
