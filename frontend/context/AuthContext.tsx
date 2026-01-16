@@ -68,7 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       toast.success('Registration successful!');
     } catch (error: any) {
-      toast.error(error.response?.data?.error || 'Registration failed');
+      const errorMessage = 
+        error.response?.data?.errors?.[0]?.msg || // Handle express-validator array
+        error.response?.data?.error ||            // Handle standard error message
+        'Registration failed';
+      
+      toast.error(errorMessage);
       throw error;
     }
   };
