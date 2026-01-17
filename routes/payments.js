@@ -53,26 +53,33 @@ router.post('/create-intent', [
     });
 
     // Create Stripe payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(parseFloat(amount) * 100), // Convert to cents
-      currency: 'php',
-      metadata: {
+    try {
+      console.log(`Creating payment intent for student: ${studentId}, amount: ${amount}`);
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(parseFloat(amount) * 100), // Convert to cents
+        currency: 'php',
+        metadata: {
+          paymentId: payment.id,
+          studentId,
+          studentName: `${student.firstName} ${student.lastName}`,
+        },
+      });
+
+      // Update payment with Stripe intent ID
+      await prisma.payment.update({
+        where: { id: payment.id },
+        data: { stripePaymentIntentId: paymentIntent.id },
+      });
+
+      console.log(`Payment intent created: ${paymentIntent.id}`);
+      res.json({
+        clientSecret: paymentIntent.client_secret,
         paymentId: payment.id,
-        studentId,
-        studentName: `${student.firstName} ${student.lastName}`,
-      },
-    });
-
-    // Update payment with Stripe intent ID
-    await prisma.payment.update({
-      where: { id: payment.id },
-      data: { stripePaymentIntentId: paymentIntent.id },
-    });
-
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentId: payment.id,
-    });
+      });
+    } catch (stripeError) {
+      console.error('Stripe error creating intent:', stripeError);
+      res.status(400).json({ error: stripeError.message || 'Failed to create payment intent' });
+    }
   } catch (error) {
     console.error('Create payment intent error:', error);
     res.status(500).json({ error: 'Failed to create payment intent' });
@@ -115,14 +122,18 @@ router.post('/confirm', [
 
     // Verify payment with Stripe
     if (payment.stripePaymentIntentId) {
+      console.log(`Verifying payment intent: ${payment.stripePaymentIntentId}`);
       const paymentIntent = await stripe.paymentIntents.retrieve(payment.stripePaymentIntentId);
+      console.log(`Payment intent status: ${paymentIntent.status}`);
       
       if (paymentIntent.status !== 'succeeded') {
-        return res.status(400).json({ error: 'Payment not completed' });
+        console.warn(`Payment not completed. Status: ${paymentIntent.status}`);
+        return res.status(400).json({ error: `Payment not completed (Status: ${paymentIntent.status})` });
       }
     }
 
     // Generate receipt PDF
+    console.log(`Generating receipt for payment: ${paymentId}`);
     const receiptUrl = await generateReceipt(payment, payment.student);
 
     // Update payment status
@@ -135,6 +146,7 @@ router.post('/confirm', [
       },
     });
 
+    console.log(`Payment confirmed and marked as PAID: ${paymentId}`);
     // Send confirmation email
     try {
       await sendPaymentConfirmationEmail(

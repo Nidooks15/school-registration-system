@@ -26,6 +26,7 @@ function PaymentForm({ studentId, onSuccess }: any) {
     setLoading(true);
     try {
       // Create payment intent
+      console.log('Creating payment intent...', { studentId, amount, paymentType });
       const { data } = await paymentAPI.createIntent({
         studentId,
         amount: parseFloat(amount),
@@ -33,23 +34,33 @@ function PaymentForm({ studentId, onSuccess }: any) {
       });
 
       const cardElement = elements.getElement(CardElement);
-      if (!cardElement) return;
+      if (!cardElement) {
+        console.error('Card element not found');
+        return;
+      }
 
       // Confirm payment
+      console.log('Confirming card payment with Stripe...');
       const { error, paymentIntent } = await stripe.confirmCardPayment(data.clientSecret, {
         payment_method: { card: cardElement },
       });
 
       if (error) {
+        console.error('Stripe confirmation error:', error);
         toast.error(error.message || 'Payment failed');
       } else if (paymentIntent?.status === 'succeeded') {
+        console.log('Stripe payment succeeded, confirming on backend...');
         // Confirm payment on backend
         await paymentAPI.confirm(data.paymentId);
         toast.success('Payment successful!');
         onSuccess();
         setAmount('');
+      } else {
+        console.warn('Payment intent status:', paymentIntent?.status);
+        toast.error(`Payment status: ${paymentIntent?.status}`);
       }
     } catch (error: any) {
+      console.error('Payment process error:', error);
       toast.error(error.response?.data?.error || 'Payment failed');
     } finally {
       setLoading(false);
