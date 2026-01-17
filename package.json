@@ -8,6 +8,7 @@
     "start": "npx prisma migrate deploy && node server.js",
     "dev": "nodemon server.js",
     "regenerate-receipts": "node scripts/regenerate-receipts.js",
+    "sync-statuses": "node scripts/sync-statuses.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
