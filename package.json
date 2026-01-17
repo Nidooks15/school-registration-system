@@ -9,6 +9,7 @@
     "dev": "nodemon server.js",
     "regenerate-receipts": "node scripts/regenerate-receipts.js",
     "sync-statuses": "node scripts/sync-statuses.js",
+    "create-admin": "node scripts/create-admin.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio"
