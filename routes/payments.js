@@ -15,14 +15,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
  */
 router.post('/create-intent', [
   authenticate,
-  body('studentId').notEmpty(),
-  body('amount').isFloat({ min: 0 }),
-  body('paymentType').isIn(['REGISTRATION_FEE', 'TUITION_DOWN_PAYMENT']),
+  body('studentId').notEmpty().withMessage('Student ID is required'),
+  body('amount').isFloat({ min: 0.5 }).withMessage('Amount must be at least $0.50'),
+  body('paymentType').isIn(['REGISTRATION_FEE', 'TUITION_DOWN_PAYMENT']).withMessage('Invalid payment type'),
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Payment validation errors:', JSON.stringify(errors.array(), null, 2));
       return res.status(400).json({ errors: errors.array() });
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_placeholder') {
+      console.error('STRIPE_SECRET_KEY is not configured correctly in Railway');
+      return res.status(500).json({ error: 'Payment system is not configured. Please check STRIPE_SECRET_KEY in Railway.' });
     }
 
     const { studentId, amount, paymentType } = req.body;

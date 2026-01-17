@@ -36,8 +36,16 @@ function PaymentForm({ studentId, onSuccess }: any) {
         });
       } catch (intentError: any) {
         console.error('Intent creation failed:', intentError);
-        const errorMsg = intentError.response?.data?.error || intentError.message;
-        toast.error(`Backend Error: ${errorMsg}`);
+        
+        if (intentError.response?.data?.errors?.[0]) {
+          const firstError = intentError.response.data.errors[0];
+          const field = firstError.path || firstError.param || 'input';
+          toast.error(`Backend Error - ${field}: ${firstError.msg}`);
+        } else {
+          const errorMsg = intentError.response?.data?.error || intentError.message;
+          toast.error(`Backend Error: ${errorMsg}`);
+        }
+        
         setLoading(false);
         return;
       }
