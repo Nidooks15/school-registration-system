@@ -15,14 +15,14 @@ export default function StudentDocuments() {
   const [selectedType, setSelectedType] = useState('');
 
   useEffect(() => {
-    if (user?.studentId) {
+    if (user?.student?.id) {
       loadDocuments();
     }
   }, [user]);
 
   const loadDocuments = async () => {
     try {
-      const response = await documentAPI.getByStudent(user!.studentId!);
+      const response = await documentAPI.getByStudent(user!.student!.id!);
       setDocuments(response.data);
     } catch (error) {
       console.error('Failed to load documents:', error);
@@ -49,7 +49,7 @@ export default function StudentDocuments() {
     setUploading(true);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('studentId', user!.studentId!);
+    formData.append('studentId', user!.student!.id!);
     formData.append('documentType', type);
 
     try {
