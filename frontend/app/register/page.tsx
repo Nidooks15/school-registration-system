@@ -61,9 +61,7 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, middleName, ...submitData } = formData;
       
-      // Comprehensive data sanitization for mobile compatibility
-      
-      // 1. Ensure date is in ISO 8601 format (YYYY-MM-DD)
+      // Ensure date is in ISO 8601 format (YYYY-MM-DD) for Safari/mobile compatibility
       if (submitData.dateOfBirth) {
         const date = new Date(submitData.dateOfBirth);
         if (!isNaN(date.getTime())) {
@@ -71,31 +69,28 @@ export default function RegisterPage() {
         }
       }
       
-      // 2. Clean phone numbers (remove spaces, dashes, parentheses)
-      if (submitData.phone) {
-        submitData.phone = submitData.phone.replace(/[\s\-\(\)]/g, '');
-      }
-      if (submitData.guardian.phone) {
-        submitData.guardian.phone = submitData.guardian.phone.replace(/[\s\-\(\)]/g, '');
-      }
+      // Clean phone numbers (remove spaces, dashes, parentheses) for mobile compatibility
+      submitData.phone = submitData.phone.replace(/[\s\-\(\)]/g, '');
+      submitData.guardian.phone = submitData.guardian.phone.replace(/[\s\-\(\)]/g, '');
       
-      // 3. Trim all string fields to remove whitespace
-      Object.keys(submitData).forEach(key => {
-        if (typeof submitData[key] === 'string') {
-          submitData[key] = submitData[key].trim();
-        }
-      });
+      // Trim all fields
+      submitData.email = submitData.email.trim();
+      submitData.password = submitData.password.trim();
+      submitData.firstName = submitData.firstName.trim();
+      submitData.lastName = submitData.lastName.trim();
+      submitData.address = submitData.address.trim();
+      submitData.gradeLevel = submitData.gradeLevel.trim();
+      submitData.academicYear = submitData.academicYear.trim();
       
-      // 4. Trim guardian fields
-      Object.keys(submitData.guardian).forEach(key => {
-        if (typeof submitData.guardian[key] === 'string') {
-          submitData.guardian[key] = submitData.guardian[key].trim();
-        }
-      });
+      submitData.guardian.firstName = submitData.guardian.firstName.trim();
+      submitData.guardian.lastName = submitData.guardian.lastName.trim();
+      submitData.guardian.relationship = submitData.guardian.relationship.trim();
+      submitData.guardian.email = submitData.guardian.email.trim();
+      submitData.guardian.address = submitData.guardian.address.trim();
       
-      // 5. Only include middleName if it has a value
+      // Only include middleName if it has a value
       if (middleName && middleName.trim()) {
-        submitData.middleName = middleName.trim();
+        (submitData as any).middleName = middleName.trim();
       }
       
       await register(submitData);
