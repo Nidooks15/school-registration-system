@@ -109,7 +109,7 @@ export const generateReceipt = async (paymentData, studentData) => {
          .text('TOTAL AMOUNT PAID', 60, doc.y + 10);
       
       doc.fontSize(20)
-         .text(`₱${parseFloat(paymentData.amount).toFixed(2)}`, 60, doc.y + 10);
+         .text(`$${parseFloat(paymentData.amount).toFixed(2)}`, 60, doc.y + 10);
 
       doc.moveDown(4);
 

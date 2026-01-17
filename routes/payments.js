@@ -139,8 +139,14 @@ router.post('/confirm', [
     }
 
     // Generate receipt PDF
-    console.log(`Generating receipt for payment: ${paymentId}`);
-    const receiptUrl = await generateReceipt(payment, payment.student);
+    let receiptUrl = null;
+    try {
+      console.log(`Generating receipt for payment: ${paymentId}`);
+      receiptUrl = await generateReceipt(payment, payment.student);
+    } catch (pdfError) {
+      console.error('Failed to generate receipt PDF:', pdfError);
+      // Don't fail the whole request if only PDF fails
+    }
 
     // Update payment status
     const updatedPayment = await prisma.payment.update({
@@ -153,17 +159,22 @@ router.post('/confirm', [
     });
 
     console.log(`Payment confirmed and marked as PAID: ${paymentId}`);
+    
     // Send confirmation email
-    try {
-      await sendPaymentConfirmationEmail(
-        payment.student.user.email,
-        `${payment.student.firstName} ${payment.student.lastName}`,
-        payment.amount.toString(),
-        payment.paymentType.replace(/_/g, ' '),
-        receiptUrl
-      );
-    } catch (emailError) {
-      console.error('Failed to send payment confirmation email:', emailError);
+    if (process.env.EMAIL_USER && process.env.EMAIL_USER !== 'placeholder') {
+      try {
+        await sendPaymentConfirmationEmail(
+          payment.student.user.email,
+          `${payment.student.firstName} ${payment.student.lastName}`,
+          payment.amount.toString(),
+          payment.paymentType.replace(/_/g, ' '),
+          receiptUrl
+        );
+      } catch (emailError) {
+        console.error('Failed to send payment confirmation email:', emailError);
+      }
+    } else {
+      console.log('Skipping payment email - Email service not configured');
     }
 
     res.json({
