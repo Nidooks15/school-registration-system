@@ -159,6 +159,22 @@ router.post('/confirm', [
     });
 
     console.log(`Payment confirmed and marked as PAID: ${paymentId}`);
+
+    // Automatically update student enrollment status
+    let newEnrollmentStatus = null;
+    if (payment.paymentType === 'REGISTRATION_FEE') {
+      newEnrollmentStatus = 'APPROVED';
+    } else if (payment.paymentType === 'TUITION_DOWN_PAYMENT') {
+      newEnrollmentStatus = 'ENROLLED';
+    }
+
+    if (newEnrollmentStatus) {
+      await prisma.student.update({
+        where: { id: payment.studentId },
+        data: { enrollmentStatus: newEnrollmentStatus },
+      });
+      console.log(`Student ${payment.studentId} status updated to ${newEnrollmentStatus}`);
+    }
     
     // Send confirmation email
     if (process.env.EMAIL_USER && process.env.EMAIL_USER !== 'placeholder') {
