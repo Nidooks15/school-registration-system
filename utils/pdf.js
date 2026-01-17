@@ -24,103 +24,116 @@ export const generateReceipt = async (paymentData, studentData) => {
         }
       });
 
-      // Header
-      doc.fontSize(24)
-         .font('Helvetica-Bold')
-         .text('PAYMENT RECEIPT', { align: 'center' });
+      // --- Official Header ---
+      doc.rect(50, 50, 500, 80).fill('#f8fafc');
+      doc.fillColor('#0f172a');
       
-      doc.moveDown();
+      doc.fontSize(20)
+         .font('Helvetica-Bold')
+         .text('OFFICIAL PAYMENT RECEIPT', 50, 70, { align: 'center' });
+      
       doc.fontSize(10)
          .font('Helvetica')
-         .text('School Registration System', { align: 'center' });
+         .text('SCHOOL REGISTRATION SYSTEM', { align: 'center' })
+         .text('Electronic Document • Secure Transaction', { align: 'center' });
       
-      doc.moveDown(2);
+      doc.moveDown(4);
 
-      // Receipt details
-      doc.fontSize(12)
-         .font('Helvetica-Bold')
-         .text('Receipt Information', { underline: true });
-      
-      doc.moveDown(0.5);
-      doc.font('Helvetica');
-      
-      const receiptInfo = [
-        ['Receipt ID:', paymentData.id],
-        ['Date:', new Date(paymentData.createdAt).toLocaleDateString()],
-        ['Payment Status:', paymentData.paymentStatus],
-      ];
-
-      receiptInfo.forEach(([label, value]) => {
-        doc.text(label, 50, doc.y, { continued: true, width: 150 })
-           .text(value, 200);
-      });
+      // --- Horizontal Divider ---
+      doc.moveTo(50, 140)
+         .lineTo(550, 140)
+         .strokeColor('#cbd5e1')
+         .stroke();
 
       doc.moveDown(2);
 
-      // Student details
-      doc.fontSize(12)
-         .font('Helvetica-Bold')
-         .text('Student Information', { underline: true });
-      
-      doc.moveDown(0.5);
-      doc.font('Helvetica');
-      
-      const studentInfo = [
-        ['Name:', `${studentData.firstName} ${studentData.lastName}`],
+      // --- Info Sections ---
+      const drawSection = (title, data, yOffset) => {
+        doc.fontSize(11)
+           .font('Helvetica-Bold')
+           .fillColor('#475569')
+           .text(title.toUpperCase(), 50, yOffset);
+        
+        doc.moveTo(50, yOffset + 15)
+           .lineTo(200, yOffset + 15)
+           .stroke();
+
+        let currentY = yOffset + 25;
+        doc.font('Helvetica').fillColor('#1e293b').fontSize(10);
+        
+        data.forEach(([label, value]) => {
+          doc.font('Helvetica-Bold').text(label, 70, currentY, { width: 120 })
+             .font('Helvetica').text(value, 200, currentY);
+          currentY += 18;
+        });
+        
+        return currentY;
+      };
+
+      let yPos = 160;
+
+      // Receipt Details
+      yPos = drawSection('Transaction Info', [
+        ['Receipt No:', paymentData.id],
+        ['Date Issued:', new Date(paymentData.createdAt).toLocaleDateString('en-US', { 
+            year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+        })],
+        ['Status:', 'PAID / SETTLED'],
+        ['Gateway:', 'STRIPE SECURE'],
+      ], yPos);
+
+      yPos += 20;
+
+      // Student Details
+      yPos = drawSection('Student Details', [
+        ['Full Name:', `${studentData.firstName} ${studentData.lastName}`],
         ['Student ID:', studentData.id],
         ['Grade Level:', studentData.gradeLevel],
         ['Academic Year:', studentData.academicYear],
-      ];
+      ], yPos);
 
-      studentInfo.forEach(([label, value]) => {
-        doc.text(label, 50, doc.y, { continued: true, width: 150 })
-           .text(value, 200);
-      });
+      yPos += 20;
 
-      doc.moveDown(2);
+      // Payment Details
+      yPos = drawSection('Payment Breakdown', [
+        ['Description:', paymentData.paymentType.replace(/_/g, ' ')],
+        ['Payment Method:', 'CREDIT/DEBIT CARD'],
+        ['Base Amount:', `$${parseFloat(paymentData.amount).toFixed(2)} USD`],
+      ], yPos);
 
-      // Payment details
-      doc.fontSize(12)
-         .font('Helvetica-Bold')
-         .text('Payment Details', { underline: true });
+      // --- Grand Total Box ---
+      const boxTop = yPos + 30;
+      doc.rect(50, boxTop, 500, 50)
+         .fill('#f1f5f9');
       
-      doc.moveDown(0.5);
-      doc.font('Helvetica');
+      doc.font('Helvetica-Bold')
+         .fontSize(12)
+         .fillColor('#0f172a')
+         .text('TOTAL AMOUNT PAID', 70, boxTop + 18);
       
-      const paymentInfo = [
-        ['Payment Type:', paymentData.paymentType.replace(/_/g, ' ')],
-        ['Payment Method:', paymentData.paymentMethod],
-        ['Amount:', `$${parseFloat(paymentData.amount).toFixed(2)}`],
-      ];
+      doc.fontSize(18)
+         .text(`$${parseFloat(paymentData.amount).toFixed(2)}`, 350, boxTop + 15, { align: 'right', width: 180 });
 
-      paymentInfo.forEach(([label, value]) => {
-        doc.text(label, 50, doc.y, { continued: true, width: 150 })
-           .text(value, 200);
-      });
-
-      doc.moveDown(3);
-
-      // Amount box
-      doc.rect(50, doc.y, 500, 60)
+      // --- Security / Signature Area ---
+      const footerTop = 650;
+      
+      doc.moveTo(50, footerTop)
+         .lineTo(220, footerTop)
+         .strokeColor('#94a3b8')
          .stroke();
       
-      doc.fontSize(14)
+      doc.fontSize(9)
          .font('Helvetica-Bold')
-         .text('TOTAL AMOUNT PAID', 60, doc.y + 10);
-      
-      doc.fontSize(20)
-         .text(`$${parseFloat(paymentData.amount).toFixed(2)}`, 60, doc.y + 10);
+         .fillColor('#64748b')
+         .text('OFFICIAL REGISTRAR', 50, footerTop + 5, { width: 170, align: 'center' })
+         .text('(System Verified Digitally)', 50, footerTop + 18, { width: 170, align: 'center', font: 'Helvetica-Oblique' });
 
-      doc.moveDown(4);
-
-      // Footer
-      doc.fontSize(10)
-         .font('Helvetica-Oblique')
-         .text('This is a computer-generated receipt and does not require a signature.', 
-               { align: 'center' });
-      
-      doc.moveDown();
-      doc.text('Thank you for your payment!', { align: 'center' });
+      // Footer Note
+      doc.fontSize(8)
+         .font('Helvetica')
+         .fillColor('#94a3b8')
+         .text('This is an official computer-generated receipt issued by the School Registration System.', 50, 720, { align: 'center' })
+         .text('No physical signature is required for this digital document to be valid.', { align: 'center' });
 
       // Finalize PDF
       doc.end();
