@@ -59,14 +59,43 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      const { confirmPassword, ...submitData } = formData;
+      const { confirmPassword, middleName, ...submitData } = formData;
       
-      // Ensure date is in ISO 8601 format (YYYY-MM-DD) for Safari/mobile compatibility
+      // Comprehensive data sanitization for mobile compatibility
+      
+      // 1. Ensure date is in ISO 8601 format (YYYY-MM-DD)
       if (submitData.dateOfBirth) {
         const date = new Date(submitData.dateOfBirth);
         if (!isNaN(date.getTime())) {
           submitData.dateOfBirth = date.toISOString().split('T')[0];
         }
+      }
+      
+      // 2. Clean phone numbers (remove spaces, dashes, parentheses)
+      if (submitData.phone) {
+        submitData.phone = submitData.phone.replace(/[\s\-\(\)]/g, '');
+      }
+      if (submitData.guardian.phone) {
+        submitData.guardian.phone = submitData.guardian.phone.replace(/[\s\-\(\)]/g, '');
+      }
+      
+      // 3. Trim all string fields to remove whitespace
+      Object.keys(submitData).forEach(key => {
+        if (typeof submitData[key] === 'string') {
+          submitData[key] = submitData[key].trim();
+        }
+      });
+      
+      // 4. Trim guardian fields
+      Object.keys(submitData.guardian).forEach(key => {
+        if (typeof submitData.guardian[key] === 'string') {
+          submitData.guardian[key] = submitData.guardian[key].trim();
+        }
+      });
+      
+      // 5. Only include middleName if it has a value
+      if (middleName && middleName.trim()) {
+        submitData.middleName = middleName.trim();
       }
       
       await register(submitData);
