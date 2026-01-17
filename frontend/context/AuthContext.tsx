@@ -70,13 +70,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (error: any) {
       // Handle express-validator errors with field names
       if (error.response?.data?.errors?.[0]) {
-        const validationError = error.response.data.errors[0];
-        const fieldName = validationError.param || 'Unknown field';
-        const message = validationError.msg || 'Invalid value';
-        toast.error(`${fieldName}: ${message}`);
+        const validationErrors = error.response.data.errors;
+        // Just show the first one for now or all? Let's show the first one but make it clear
+        const firstError = validationErrors[0];
+        const fieldName = firstError.path || firstError.param || 'unknown field';
+        const message = firstError.msg || 'Invalid value';
+        toast.error(`Registration Error - ${fieldName}: ${message}`);
+        console.error('Validation errors:', validationErrors);
       } else {
-        const errorMessage = error.response?.data?.error || 'Registration failed';
+        const errorMessage = error.response?.data?.error || 'Registration failed. Please check all fields.';
         toast.error(errorMessage);
+        console.error('Registration error:', error);
       }
       throw error;
     }
