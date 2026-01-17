@@ -92,20 +92,30 @@ git push -u origin main
 
 ### 3.3 Add Environment Variables
 
-Click "Variables" tab and add these:
+1. Click the **Variables** tab in your backend service.
+2. Click **Add Variable** for each of these:
 
 ```
 DATABASE_URL=${DATABASE_URL from PostgreSQL service}
 JWT_SECRET=your-super-secret-key-change-this-123456789
+STRIPE_SECRET_KEY=sk_test_your_key_here
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
 NODE_ENV=production
 PORT=5000
 ```
 
+### 3.3.1 How to get Cloudinary Keys:
+
+1. Sign up for a free account at [Cloudinary.com](https://cloudinary.com).
+2. Log in to your Dashboard.
+3. You will see your **Cloud Name**, **API Key**, and **API Secret** right on the home dashboard.
+4. Copy and paste those into your Railway variables.
+
 **For now, use placeholder values for these** (we'll set them up later):
 
 ```
-CLOUDINARY_CLOUD_NAME=placeholder
-CLOUDINARY_API_KEY=placeholder
 CLOUDINARY_API_SECRET=placeholder
 STRIPE_SECRET_KEY=sk_test_placeholder
 EMAIL_HOST=smtp.gmail.com
