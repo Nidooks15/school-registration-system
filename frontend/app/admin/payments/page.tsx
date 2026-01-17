@@ -51,11 +51,11 @@ export default function AdminPayments() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
             <div className="card">
               <p className="text-sm text-gray-600 mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold text-green-600">₱{stats.total.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">${stats.total.toFixed(2)}</p>
             </div>
             <div className="card">
               <p className="text-sm text-gray-600 mb-1">Paid</p>
-              <p className="text-2xl font-bold text-green-600">₱{stats.paid.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-green-600">${stats.paid.toFixed(2)}</p>
             </div>
             <div className="card">
               <p className="text-sm text-gray-600 mb-1">Pending</p>
@@ -113,7 +113,7 @@ export default function AdminPayments() {
                           <span className="text-xs text-gray-500">{payment.student.gradeLevel}</span>
                         </td>
                         <td className="px-4 py-3 text-sm">{payment.paymentType.replace(/_/g, ' ')}</td>
-                        <td className="px-4 py-3 text-sm font-semibold">₱{parseFloat(payment.amount).toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm font-semibold">${parseFloat(payment.amount).toFixed(2)}</td>
                         <td className="px-4 py-3 text-sm">{payment.paymentMethod}</td>
                         <td className="px-4 py-3 text-sm">
                           <span className={`badge badge-${payment.paymentStatus.toLowerCase()}`}>

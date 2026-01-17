@@ -66,7 +66,7 @@ export const sendPaymentConfirmationEmail = async (email, studentName, amount, p
           <p>We have successfully received your payment.</p>
           <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Payment Type:</strong> ${paymentType}</p>
-            <p><strong>Amount:</strong> ₱${amount}</p>
+            <p><strong>Amount:</strong> $${amount}</p>
             <p><strong>Status:</strong> <span style="color: #16a34a;">Paid</span></p>
           </div>
           <p>Your receipt has been generated and is available for download in your student dashboard.</p>

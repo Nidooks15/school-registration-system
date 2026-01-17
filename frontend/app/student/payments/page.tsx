@@ -96,7 +96,7 @@ function PaymentForm({ studentId, onSuccess }: any) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Amount (₱)</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Amount ($)</label>
         <input
           type="number"
           min="1"
@@ -194,7 +194,7 @@ export default function StudentPayments() {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600">Total Paid</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ₱{payments.filter(p => p.paymentStatus === 'PAID').reduce((sum, p) => sum + parseFloat(p.amount), 0).toFixed(2)}
+                    ${payments.filter(p => p.paymentStatus === 'PAID').reduce((sum, p) => sum + parseFloat(p.amount), 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -227,7 +227,7 @@ export default function StudentPayments() {
                       <tr key={payment.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{new Date(payment.createdAt).toLocaleDateString()}</td>
                         <td className="px-4 py-3 text-sm">{payment.paymentType.replace(/_/g, ' ')}</td>
-                        <td className="px-4 py-3 text-sm font-semibold">₱{parseFloat(payment.amount).toFixed(2)}</td>
+                        <td className="px-4 py-3 text-sm font-semibold">${parseFloat(payment.amount).toFixed(2)}</td>
                         <td className="px-4 py-3 text-sm">{getStatusBadge(payment.paymentStatus)}</td>
                         <td className="px-4 py-3 text-sm">
                           {payment.receiptUrl && (

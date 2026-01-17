@@ -57,7 +57,7 @@ router.post('/create-intent', [
       console.log(`Creating payment intent for student: ${studentId}, amount: ${amount}`);
       const paymentIntent = await stripe.paymentIntents.create({
         amount: Math.round(parseFloat(amount) * 100), // Convert to cents
-        currency: 'php',
+        currency: 'usd',
         metadata: {
           paymentId: payment.id,
           studentId,

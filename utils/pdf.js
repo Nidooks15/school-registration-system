@@ -90,7 +90,7 @@ export const generateReceipt = async (paymentData, studentData) => {
       const paymentInfo = [
         ['Payment Type:', paymentData.paymentType.replace(/_/g, ' ')],
         ['Payment Method:', paymentData.paymentMethod],
-        ['Amount:', `₱${parseFloat(paymentData.amount).toFixed(2)}`],
+        ['Amount:', `$${parseFloat(paymentData.amount).toFixed(2)}`],
       ];
 
       paymentInfo.forEach(([label, value]) => {
