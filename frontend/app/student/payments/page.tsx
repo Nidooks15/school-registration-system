@@ -140,14 +140,14 @@ export default function StudentPayments() {
   const [payments, setPayments] = useState<any[]>([]);
 
   useEffect(() => {
-    if (user?.studentId) {
+    if (user?.student?.id) {
       loadPayments();
     }
   }, [user]);
 
   const loadPayments = async () => {
     try {
-      const response = await paymentAPI.getByStudent(user!.studentId!);
+      const response = await paymentAPI.getByStudent(user!.student!.id!);
       setPayments(response.data);
     } catch (error) {
       console.error('Failed to load payments:', error);
@@ -191,7 +191,7 @@ export default function StudentPayments() {
                 Make a Payment
               </h2>
               <Elements stripe={stripePromise}>
-                <PaymentForm studentId={user?.studentId} onSuccess={loadPayments} />
+                <PaymentForm studentId={user?.student?.id} onSuccess={loadPayments} />
               </Elements>
             </div>
 
