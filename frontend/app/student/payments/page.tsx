@@ -207,7 +207,9 @@ export default function StudentPayments() {
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-600">Total Payments</p>
-                  <p className="text-2xl font-bold text-gray-900">{payments.length}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {payments.filter(p => p.paymentStatus === 'PAID').length}
+                  </p>
                 </div>
               </div>
             </div>
@@ -231,7 +233,9 @@ export default function StudentPayments() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {payments.map((payment) => (
+                    {payments
+                      .filter(p => p.paymentStatus === 'PAID') // Only show PAID to keep it clean
+                      .map((payment) => (
                       <tr key={payment.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 text-sm">{new Date(payment.createdAt).toLocaleDateString()}</td>
                         <td className="px-4 py-3 text-sm">{payment.paymentType.replace(/_/g, ' ')}</td>
