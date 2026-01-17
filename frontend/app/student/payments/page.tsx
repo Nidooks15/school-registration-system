@@ -154,14 +154,6 @@ export default function StudentPayments() {
     }
   };
 
-  const downloadReceipt = async (paymentId: string) => {
-    try {
-      const response = await paymentAPI.getReceipt(paymentId);
-      window.open(response.data.receiptUrl, '_blank');
-    } catch (error: any) {
-      toast.error('Failed to download receipt');
-    }
-  };
 
   const getStatusBadge = (status: string) => {
     const badges: any = {
@@ -243,13 +235,15 @@ export default function StudentPayments() {
                         <td className="px-4 py-3 text-sm">{getStatusBadge(payment.paymentStatus)}</td>
                         <td className="px-4 py-3 text-sm">
                           {payment.receiptUrl && (
-                            <button
-                              onClick={() => downloadReceipt(payment.id)}
-                              className="text-primary-600 hover:text-primary-700 flex items-center"
+                            <a
+                              href={payment.receiptUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary-600 hover:text-primary-700 flex items-center hover:underline"
                             >
                               <Download className="h-4 w-4 mr-1" />
                               Download
-                            </button>
+                            </a>
                           )}
                         </td>
                       </tr>
