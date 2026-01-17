@@ -27,12 +27,22 @@ function PaymentForm({ studentId, onSuccess }: any) {
     try {
       // Create payment intent
       console.log('Creating payment intent...', { studentId, amount, paymentType });
-      const { data } = await paymentAPI.createIntent({
-        studentId,
-        amount: parseFloat(amount),
-        paymentType,
-      });
+      let intentResponse;
+      try {
+        intentResponse = await paymentAPI.createIntent({
+          studentId,
+          amount: parseFloat(amount),
+          paymentType,
+        });
+      } catch (intentError: any) {
+        console.error('Intent creation failed:', intentError);
+        const errorMsg = intentError.response?.data?.error || intentError.message;
+        toast.error(`Backend Error: ${errorMsg}`);
+        setLoading(false);
+        return;
+      }
 
+      const { data } = intentResponse;
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
         console.error('Card element not found');
@@ -47,21 +57,25 @@ function PaymentForm({ studentId, onSuccess }: any) {
 
       if (error) {
         console.error('Stripe confirmation error:', error);
-        toast.error(error.message || 'Payment failed');
+        toast.error(`Stripe Error: ${error.message}`);
       } else if (paymentIntent?.status === 'succeeded') {
         console.log('Stripe payment succeeded, confirming on backend...');
-        // Confirm payment on backend
-        await paymentAPI.confirm(data.paymentId);
-        toast.success('Payment successful!');
-        onSuccess();
-        setAmount('');
+        try {
+          await paymentAPI.confirm(data.paymentId);
+          toast.success('Payment successful!');
+          onSuccess();
+          setAmount('');
+        } catch (confirmError: any) {
+          console.error('Backend confirmation failed:', confirmError);
+          toast.error(`Confirmation Error: ${confirmError.response?.data?.error || 'Failed to sync with server'}`);
+        }
       } else {
         console.warn('Payment intent status:', paymentIntent?.status);
-        toast.error(`Payment status: ${paymentIntent?.status}`);
+        toast.error(`Status: ${paymentIntent?.status}`);
       }
     } catch (error: any) {
-      console.error('Payment process error:', error);
-      toast.error(error.response?.data?.error || 'Payment failed');
+      console.error('General payment error:', error);
+      toast.error('Payment process failed. Check console for details.');
     } finally {
       setLoading(false);
     }
